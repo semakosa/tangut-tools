@@ -20,7 +20,7 @@ This repository will contain the following components, once they are cleaned up 
 
 *   ~~**Finite State Conversion Library:**~~  A library for converting between different Latin-script Tangut transcription (reconstruction) systems.~~
 *   ~~**Proof-of-Concept Phonological Reconstruction Tool:**~~ An experimental tool for interpretable and transparent reconstruction of Tangut phonology based on the internal structure of *Sea of Characters*.~~
-*   ~~**"Tangut Tool" GUI (Python/GTK3):**~~ A prototype graphical user interface for dynamic transcription and glossing of Tangut text.~~
+*   **"Tangut Tool" GUI (Python/GTK4):** A prototype graphical user interface for dynamic transcription and glossing of Tangut text. [Source code available here](https://github.com/semakosa/tangut-tools/tree/main/tangut-tool).
 
 # <a name="chinese"></a> 西夏文研究工具
 
@@ -36,5 +36,5 @@ This repository will contain the following components, once they are cleaned up 
 - ~~**音韵构拟工具**~~  
   基于《文海》的结构特征开发的透明、可解释音韵构拟工具，目前处于试验阶段。
 
-- ~~**西夏文处理工具**~~  
-  利用 Python/GTK3 开发的原型系统，支持西夏文本的自动标音与辅助标意。
+- **西夏文处理工具**  
+  利用 Python/GTK4 开发的原型系统，支持西夏文本的自动标音与辅助标意。[源代码在此](https://github.com/semakosa/tangut-tools/tree/main/tangut-tool)
