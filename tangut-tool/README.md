@@ -16,11 +16,19 @@ This tool allows you to work with Tangut text by:
 
 *Screenshot of the "Tangut Tool" interface showing the main features.*
 
-## Installation
+## Dependencies
 
-### Prerequisites
+The Tangut Tool has the following dependencies:
 
-The application requires GTK 4 and libadwaita:
+### Required
+- **Python:** 3.6 or higher
+- **GTK 4:** 4.6.0 or higher - The main GUI toolkit
+- **libadwaita:** 1.2 or higher - For modern GNOME-style interface components
+- **PyGObject:** 3.42 or higher - Python bindings for GObject-based libraries (GTK)
+- **Cairo:** - For rendering graphics in the interface
+- **TgtOrtho:** (optional) - If available, provides enhanced phonological handling
+
+### System-Specific Installation Commands
 
 ```bash
 # Ubuntu/Debian
@@ -31,7 +39,12 @@ sudo dnf install python3-gobject gtk4 libadwaita-devel
 
 # Arch Linux
 sudo pacman -S python-gobject gtk4 libadwaita
+
+# macOS (using Homebrew)
+brew install gtk4 libadwaita pygobject3
 ```
+
+## Installation
 
 ### Running the application
 

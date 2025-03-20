@@ -1,0 +1,197 @@
+# TgtOrtho - Tangut Orthography Library
+
+A comprehensive Python library for processing Tangut orthography and phonological representations. TgtOrtho provides robust tools for working with multiple reconstructions of Tangut phonology and seamlessly converting between different representation formats.
+
+## Features
+
+- Rigorous phonological vector representation with validation
+- Deterministic orthographic parsing and generation
+- Multiple cross-compatible reconstruction models
+- Extensible architecture for custom reconstruction schemes
+- Comprehensive debugging capabilities
+
+## Dependencies
+
+TgtOrtho has the following dependencies:
+
+- **Python:** 3.6 or higher
+- **Pynini:** 2.1.3 or higher - A Python library for finite state transducers, used for parsing and generation of orthographic forms
+- **PyICU:** (optional) - For enhanced Unicode handling in complex scripts
+- **NumPy:** (optional) - For numerical processing of phonological vectors in advanced use cases
+
+For development:
+- **pytest:** For running the test suite
+- **sphinx:** For building documentation
+
+## Installation
+
+### From GitHub
+
+```bash
+# Install directly from GitHub
+pip install git+https://github.com/semakosa/tangut-tools.git#subdirectory=tgtortho
+```
+
+### Local Development Installation
+
+```bash
+git clone https://github.com/semakosa/tangut-tools.git
+cd tangut-tools/tgtortho
+pip install -e .
+```
+
+## Basic Usage
+
+```python
+from tgtortho.models import GX202411Orthography
+
+# Parse syllable into phonological vector
+syllable = GX202411Orthography("tśhə¹")
+
+# Access phonological features
+print(syllable['声母'])  # tśh
+print(syllable['元音'])  # ə 
+print(syllable['声调'])  # 平
+
+# Modify features
+syllable['声调'] = '上'
+print(syllable)  # tśhə²
+
+# Parse multiple syllables
+syllables = GX202411Orthography.parse_all("tśhə¹ kha²")
+for syl in syllables:
+    print(syl)
+```
+
+## Included Tools and Scripts
+
+TgtOrtho comes with several useful scripts to help you get started and explore the functionality:
+
+### Example Script
+
+The `example.py` script demonstrates the core functionality of TgtOrtho, including parsing, feature access, modification, and debugging. Run it to see a live demonstration:
+
+```bash
+cd tangut-tools/tgtortho
+python example.py
+```
+
+This script is also an excellent reference for learning how to use the library's various features.
+
+### Tangut Explorer GUI
+
+The `tangut_explorer.py` script provides a graphical user interface (GTK4) for interactively exploring the different reconstruction models and orthographies:
+
+```bash
+cd tangut-tools/tgtortho
+python tangut_explorer.py
+```
+
+With this GUI tool, you can:
+- Select different reconstruction models
+- Experiment with various orthographic representations
+- Modify phonological features and see the resulting syllables in real time
+- Learn about the structure of the different phonological systems
+
+### Test Suite
+
+TgtOrtho includes a comprehensive test suite to ensure correctness. Run the tests using:
+
+```bash
+cd tangut-tools/tgtortho
+python run_tests.py
+```
+
+Or alternatively:
+
+```bash
+cd tangut-tools/tgtortho
+pytest tests/
+```
+
+## Debugging Support
+
+TgtOrtho provides comprehensive debugging capabilities for tracing parsing and generation processes:
+
+```python
+import logging
+from tgtortho.models import GX202411Orthography
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
+
+# Enable debugging for all instances of a class
+GX202411Orthography.set_debug_mode(True)
+
+# Or enable debugging for a specific instance
+syllable = GX202411Orthography("tśhə¹", debug=True)
+
+# Get detailed feature breakdown
+syllable.debug_features()
+
+# Debug multiple syllable parsing
+debug_syllables = GX202411Orthography.parse_all("tśhə¹ kha²", debug=True)
+```
+
+## Available Reconstruction Models and Orthographies
+
+- **GHC** - Gong Hwang-cherng's reconstruction: standard and machine orthographies
+- **GX202411** - Xun Gong's reconstruction (November 2024): standard and IPA orthographies
+- **GX202404** - Xun Gong's reconstruction (April 2024): standard and IPA orthographies
+
+## Documentation
+
+For more detailed information, please refer to the following documentation:
+
+- [Practical Guide](docs/PRACTICAL_GUIDE.md) - Step-by-step examples and use cases
+- [Model Specification](docs/MODEL_SPECIFICATION.md) - Details on model structure and implementation
+- [Parsing and Generation](docs/PARSING_AND_GENERATION.md) - Technical details of the parsing system
+
+## Implementing Custom Models
+
+Create new reconstruction models by defining specifications in the `tgtortho/models` directory:
+
+```python
+from tgtortho.core import build_phonological_vector_class, build_orthography_class
+
+# Define phonological specification
+my_model_specification = {
+    'reconstruction_id': "my_model",
+    'specification': {
+        # Feature definitions
+    }
+}
+
+# Create vector class
+MyModelVector = build_phonological_vector_class(my_model_specification)
+
+# Define orthography rules
+my_model_orthography = {
+    'fst': {
+        # FST rules for parsing/generation
+    },
+    'substitutions': [
+        # Character substitution rules
+    ],
+    'keys': ['feature1', 'feature2', ...],
+    'parse': 'Syllable',
+    'generate': 'Syllable'
+}
+
+# Create orthography class
+MyModelOrthography = build_orthography_class(MyModelVector, my_model_orthography)
+```
+
+See [Model Specification](docs/MODEL_SPECIFICATION.md) for detailed implementation guidance.
+
+## License
+
+This project is part of the Tangut Tools repository and is licensed under the MIT License. The orthography models are considered as part of the code and are licensed under the MIT License.
+
+## Contact
+
+For questions, permission requests, or collaboration opportunities, please contact:
+
+- **Xun Gong**
+- **University of Vienna**
+- **Email:** xun.gong@univie.ac.at 

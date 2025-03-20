@@ -21,8 +21,7 @@
 title: Tangut Tools
 email: xun.gong@univie.ac.at
 description: >- # this means to ignore newlines until "baseurl:"
-  Tangut Tools is a collection of resources and tools for Tangut language study.
-  It includes a dictionary, a grammar guide, and a corpus of Tangut texts.
+  A collection of resources and tools for the study of the Tangut language, script, and text corpus.
 baseurl: "/tangut-tools" # the subpath of your site, e.g. /blog
 url: "https://semakosa.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: jekyllrb

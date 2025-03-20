@@ -16,11 +16,11 @@ This repository provides tools and resources for the study of the Tangut languag
 
 ## Overview
 
-This repository will contain the following components, once they are cleaned up for public release:
+This repository contains the following components:
 
-*   ~~**Finite State Conversion Library:**~~  A library for converting between different Latin-script Tangut transcription (reconstruction) systems.~~
-*   ~~**Proof-of-Concept Phonological Reconstruction Tool:**~~ An experimental tool for interpretable and transparent reconstruction of Tangut phonology based on the internal structure of *Sea of Characters*.~~
+*   **TgtOrtho - Tangut Orthography Library:** A Python library based on finite state transducers (FSTs) for processing different Latin-script Tangut transcription (reconstruction) systems and their corresponding phonological representations. [Source code available here](https://github.com/semakosa/tangut-tools/tree/main/tgtortho).
 *   **"Tangut Tool" GUI (Python/GTK4):** A prototype graphical user interface for dynamic transcription and glossing of Tangut text. [Source code available here](https://github.com/semakosa/tangut-tools/tree/main/tangut-tool).
+*   ~~**Proof-of-Concept Phonological Reconstruction Tool:**~~ An experimental tool for interpretable and transparent reconstruction of Tangut phonology based on the internal structure of *Sea of Characters*.~~
 
 # <a name="chinese"></a> 西夏文研究工具
 
@@ -28,13 +28,13 @@ This repository will contain the following components, once they are cleaned up 
 
 ## 概述
 
-项目内容仍在公开发布前的紧急清理阶段，目前已开发部分包括：
+本项目包含以下组件：
 
-- ~~**FST拟音转换库**~~  
-  支持西夏文拟音系统之间的互转。
-
-- ~~**音韵构拟工具**~~  
-  基于《文海》的结构特征开发的透明、可解释音韵构拟工具，目前处于试验阶段。
+- **TgtOrtho - 西夏文拟音处理库**  
+  基于有限状态转换器（FST）的Python库，用于处理不同拉丁字母西夏文拟音系统及其对应的音系表示。[源代码在此](https://github.com/semakosa/tangut-tools/tree/main/tgtortho)
 
 - **西夏文处理工具**  
   利用 Python/GTK4 开发的原型系统，支持西夏文本的自动标音与辅助标意。[源代码在此](https://github.com/semakosa/tangut-tools/tree/main/tangut-tool)
+
+- ~~**音韵构拟工具**~~  
+  基于《文海》的结构特征开发的透明、可解释音韵构拟工具，目前处于试验阶段。
