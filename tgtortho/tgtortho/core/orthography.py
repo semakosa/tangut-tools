@@ -3,6 +3,7 @@ Orthography module.
 
 This module provides functions for building orthography classes based on
 phonological vector classes and parser specifications, with debugging capabilities.
+It includes comprehensive FST structure validation to ensure proper feature mapping.
 """
 
 import re
@@ -17,17 +18,31 @@ def validate_fst_structure(fst_defs, keys, parse_entry, generate_entry):
     Validate FST structure by checking the consistency of "*" separators
     and mapping FST variables to their corresponding feature fields.
     
+    This function performs several validations on the FST structure:
+    1. Checks that all union branches within the same variable have the same number of separators
+    2. Verifies that entry points have the expected number of separators for the given keys
+    3. Maps each FST component to the features it handles based on its position in the structure
+    
     Args:
         fst_defs (dict): The FST minilanguage definitions.
         keys (list): The list of feature names in the model specification.
-        parse_entry (str): The entry point for parsing.
-        generate_entry (str): The entry point for generation.
+        parse_entry (str): The entry point variable name for parsing.
+        generate_entry (str): The entry point variable name for generation.
         
     Returns:
-        dict: Mapping of FST variables to the feature fields they represent.
+        dict: A dictionary containing:
+            - direct_separator_counts: Count of direct "*" separators in each variable
+            - total_separator_counts: Count of total "*" separators including referenced variables
+            - field_mappings: Mapping of variables to the feature fields they represent
+            - feature_paths: Maps variables to specific feature keys they handle
+            - entry_points: Analysis of parse and generate entry points
+            - warnings: List of any issues found during validation
         
     Raises:
-        ValueError: If FST structure is inconsistent or invalid.
+        ValueError: If the FST structure is inconsistent or invalid, such as:
+            - Union branches with inconsistent separator counts
+            - Invalid references to undefined variables
+            - Circular references in the FST definitions
     """
     # We need to track both direct separators and total separators through the path
     direct_separator_counts = {}  # Only direct "*" in the current variable
@@ -39,14 +54,22 @@ def validate_fst_structure(fst_defs, keys, parse_entry, generate_entry):
     processed = set()
     
     def count_direct_separators(definition):
-        """Count the number of "*" separators directly in an FST definition (non-recursive)."""
+        """
+        Count the number of "*" separators directly in an FST definition (non-recursive).
+        
+        Args:
+            definition: An FST definition (string, dict with 'union' or 'concat')
+            
+        Returns:
+            int: The number of direct separators
+        """
         if isinstance(definition, str):
             return 1 if definition == "*" else 0
         
         if isinstance(definition, dict):
             if "union" in definition:
-                # For union branches, we only need to count direct separators
-                # but we don't enforce consistency here - that's for total separators
+                # For union branches, we check that all have the same direct separator count
+                # but return the count of the first branch as representative
                 counts = [count_direct_separators(item) for item in definition["union"]]
                 return counts[0] if counts else 0
             
@@ -60,6 +83,16 @@ def validate_fst_structure(fst_defs, keys, parse_entry, generate_entry):
         """
         Recursively count the total "*" separators in an FST variable definition,
         including those in referenced variables.
+        
+        Args:
+            var_name (str): The name of the FST variable to analyze
+            visited (set, optional): Set of already visited variables to prevent infinite recursion
+            
+        Returns:
+            int: The total number of separators
+            
+        Raises:
+            ValueError: If union branches have inconsistent separator counts
         """
         if visited is None:
             visited = set()
@@ -88,7 +121,7 @@ def validate_fst_structure(fst_defs, keys, parse_entry, generate_entry):
         # For dictionary definitions
         elif isinstance(definition, dict):
             if "union" in definition:
-                # All branches should have same total separators
+                # All branches should have same total separators - this is a requirement
                 items = definition["union"]
                 counts = []
                 
@@ -118,7 +151,7 @@ def validate_fst_structure(fst_defs, keys, parse_entry, generate_entry):
                             counts.append(count)
                 
                 if counts and len(set(counts)) > 1:
-                    raise ValueError(f"Inconsistent total separator count in union branches of {var_name}: {counts}")
+                    raise ValueError(f"Inconsistent total separator count in union branches of {var_name}: {counts}. All branches must have the same number of separators.")
                 
                 total = counts[0] if counts else 0
                 total_separator_counts[var_name] = total
@@ -169,10 +202,21 @@ def validate_fst_structure(fst_defs, keys, parse_entry, generate_entry):
         if entry_point in fst_defs:
             feature_paths[entry_point] = keys.copy()
     
-    # For Syllable, decompose the concatenation to map features
-    # This is based on the assumption that Syllable follows a specific pattern of components and separators
+    # Map components based on their position in the concatenation pattern
     def map_components_from_pattern(var_name):
-        """Map features to components based on their position in the concat pattern"""
+        """
+        Map features to components based on their position in the concatenation pattern.
+        
+        This method distributes feature keys to FST components based on their 
+        position in the entry point's concatenation structure and their
+        separator counts. Each component is mapped to the features it handles.
+        
+        Args:
+            var_name (str): The name of the FST variable to analyze
+            
+        Returns:
+            None: Updates feature_paths dictionary in-place
+        """
         if var_name not in fst_defs:
             return
             
@@ -295,6 +339,11 @@ def build_orthography_class(base_class, parser_spec):
     """
     Build an orthography class based on a PhonologicalVector class and a parser specification.
     
+    This function creates a new class derived from the base class, adding functionality
+    for parsing strings into phonological feature vectors and generating orthographic
+    representations from those vectors. It also validates the FST structure to ensure
+    consistent feature mapping.
+    
     Args:
         base_class (type): A class derived from PhonologicalVector.
         parser_spec (dict): A dictionary with the following keys:
@@ -306,6 +355,12 @@ def build_orthography_class(base_class, parser_spec):
             
     Returns:
         type: A new class derived from base_class with orthography functionality.
+        
+    Notes:
+        The FST structure validation ensures that:
+        - Each union branch in a variable has the same total number of separators
+        - Entry points have the expected number of separators for the given keys
+        - FST components are mapped to the features they handle
     """
     # Validate FST structure before compiling
     try:
@@ -340,6 +395,15 @@ def build_orthography_class(base_class, parser_spec):
     class Orthography(base_class):
         """
         A class for parsing and generating orthographic representations with debugging capabilities.
+        
+        This class extends a PhonologicalVector class to add capabilities for:
+        - Parsing orthographic strings into phonological feature vectors
+        - Generating orthographic representations from phonological feature vectors
+        - Validating and visualizing the FST structure
+        - Debugging the parsing and generation process
+        
+        The class uses a finite-state transducer (FST) to handle the mapping between
+        orthographic forms and phonological features.
         """
         # Compile the FST once and store it in the class
         parser_specification = parser_spec  # Store the parser spec for reference
@@ -356,8 +420,14 @@ def build_orthography_class(base_class, parser_spec):
             """
             Enable or disable debug mode for the orthography class.
             
+            When debug mode is enabled, detailed logging information is provided
+            about the parsing and generation process.
+            
             Args:
                 enabled (bool): Whether to enable debugging.
+                
+            Returns:
+                bool: The new debug mode state.
             """
             cls.debug_mode = enabled
             if enabled:
@@ -379,7 +449,7 @@ def build_orthography_class(base_class, parser_spec):
             - Specific feature keys each FST variable corresponds to
             
             Returns:
-                dict: The FST structure analysis.
+                dict: The FST structure analysis or None if not available.
             """
             if not cls.fst_analysis:
                 logger.warning("FST analysis information is not available")

@@ -9,6 +9,7 @@ A comprehensive Python library for processing Tangut orthography and phonologica
 - Multiple cross-compatible reconstruction models
 - Extensible architecture for custom reconstruction schemes
 - Comprehensive debugging capabilities
+- Advanced FST structure validation and visualization
 
 ## Dependencies
 
@@ -78,6 +79,21 @@ python example.py
 
 This script is also an excellent reference for learning how to use the library's various features.
 
+### FST Validation Tool
+
+The `test_fst_validation.py` script demonstrates how to use the FST validation features to analyze and debug the structure of finite-state transducers:
+
+```bash
+cd tangut-tools/tgtortho
+python test_fst_validation.py
+```
+
+This tool helps you:
+- Validate the consistency of your FST definitions
+- Visualize the structure of FSTs and their feature mappings
+- Debug parsing and generation processes
+- Ensure proper mapping between phonological features and FST components
+
 ### Tangut Explorer GUI
 
 The `tangut_explorer.py` script provides a graphical user interface (GTK4) for interactively exploring the different reconstruction models and orthographies:
@@ -131,7 +147,38 @@ syllable.debug_features()
 
 # Debug multiple syllable parsing
 debug_syllables = GX202411Orthography.parse_all("tśhə¹ kha²", debug=True)
+
+# Analyze and visualize FST structure
+fst_analysis = GX202411Orthography.debug_fst_structure()
+visualization = GX202411Orthography.visualize_fst_structure()
+print(visualization)
 ```
+
+## FST Structure Validation
+
+TgtOrtho includes advanced FST validation capabilities to ensure consistent and accurate parsing and generation:
+
+```python
+from tgtortho.models import GX202411Orthography
+
+# Get detailed FST structure analysis
+fst_analysis = GX202411Orthography.debug_fst_structure()
+
+# Print a human-readable visualization
+visualization = GX202411Orthography.visualize_fst_structure()
+print(visualization)
+```
+
+The FST validation performs several checks:
+- Ensures all union branches within a variable have the same number of separators
+- Verifies that entry points have the correct number of separators for the given features
+- Maps FST components to the features they handle based on their position
+- Identifies potential inconsistencies or issues in the FST structure
+
+When implementing your own FST-based parser, ensure that:
+1. Each union branch in a variable has the same total separator count
+2. The entry point has exactly `len(keys) - 1` separators
+3. Component variables are properly structured for consistent feature mapping
 
 ## Available Reconstruction Models and Orthographies
 
@@ -146,6 +193,7 @@ For more detailed information, please refer to the following documentation:
 - [Practical Guide](docs/PRACTICAL_GUIDE.md) - Step-by-step examples and use cases
 - [Model Specification](docs/MODEL_SPECIFICATION.md) - Details on model structure and implementation
 - [Parsing and Generation](docs/PARSING_AND_GENERATION.md) - Technical details of the parsing system
+- [FST Validation](docs/FST_VALIDATION.md) - Guide to validating and debugging FST structures
 
 ## Implementing Custom Models
 
@@ -169,6 +217,17 @@ MyModelVector = build_phonological_vector_class(my_model_specification)
 my_model_orthography = {
     'fst': {
         # FST rules for parsing/generation
+        # Note: Ensure all union branches within a variable have the same separator count
+        'Syllable': {
+            'concat': ['Component1', '*', 'Component2', '*', 'Component3']
+        },
+        'Component1': {...},
+        'Component2': {
+            'union': [
+                {'concat': ['SubComp1', '*', 'SubComp2']},  # 1 separator
+                {'concat': ['OtherComp', '*', 'AnotherComp']}  # Also 1 separator
+            ]
+        }
     },
     'substitutions': [
         # Character substitution rules
@@ -180,6 +239,9 @@ my_model_orthography = {
 
 # Create orthography class
 MyModelOrthography = build_orthography_class(MyModelVector, my_model_orthography)
+
+# Validate FST structure
+print(MyModelOrthography.visualize_fst_structure())
 ```
 
 See [Model Specification](docs/MODEL_SPECIFICATION.md) for detailed implementation guidance.
