@@ -145,112 +145,6 @@ def validate_fst_structure(fst_defs, keys, parse_entry, generate_entry):
         
         return 0
     
-    def track_features_in_path(var_name, current_path=None, start_index=0, visited=None):
-        """
-        Track the specific feature keys each FST variable corresponds to.
-        
-        Args:
-            var_name: The FST variable name to analyze
-            current_path: List of features encountered so far in the path
-            start_index: Current feature index in the path
-            visited: Set of already visited variables to prevent cycles
-            
-        Returns:
-            list: The feature indices this variable handles
-            int: The new index after processing this variable
-        """
-        if visited is None:
-            visited = set()
-            
-        if current_path is None:
-            current_path = []
-            
-        # Avoid infinite recursion
-        if var_name in visited:
-            return current_path, start_index
-            
-        visited.add(var_name)
-        definition = fst_defs[var_name]
-        
-        # For simple string references
-        if isinstance(definition, str):
-            if definition == "*":
-                # This is a separator, represent both features it separates
-                return [start_index, start_index + 1], start_index + 1
-            elif definition in fst_defs and definition not in visited:
-                # Recursively process referenced variable
-                return track_features_in_path(definition, current_path, start_index, visited)
-            else:
-                # String literal, corresponds to the current feature
-                return [start_index], start_index
-        
-        # For dictionary definitions
-        elif isinstance(definition, dict):
-            if "union" in definition:
-                # For union, take the first branch's path (should be consistent across branches)
-                items = definition["union"]
-                if items:
-                    # Use first item as representative (all branches should handle same features)
-                    item = items[0]
-                    if isinstance(item, str):
-                        if item == "*":
-                            return [start_index, start_index + 1], start_index + 1
-                        elif item in fst_defs and item not in visited:
-                            return track_features_in_path(item, current_path, start_index, visited)
-                    elif isinstance(item, dict) and "concat" in item:
-                        # Handle concatenation within union
-                        this_path = []
-                        idx = start_index
-                        for concat_item in item["concat"]:
-                            if isinstance(concat_item, str):
-                                if concat_item == "*":
-                                    this_path.append(idx)
-                                    this_path.append(idx + 1)
-                                    idx += 1
-                                elif concat_item in fst_defs and concat_item not in visited:
-                                    sub_path, idx = track_features_in_path(concat_item, this_path, idx, visited.copy())
-                                    this_path.extend(sub_path)
-                            elif isinstance(concat_item, dict):
-                                # Handle nested dictionaries
-                                temp_var = f"_temp_{len(fst_defs)}"
-                                fst_defs[temp_var] = concat_item
-                                sub_path, idx = track_features_in_path(temp_var, this_path, idx, visited.copy())
-                                this_path.extend(sub_path)
-                                del fst_defs[temp_var]
-                        return this_path, idx
-                
-                return [], start_index
-                
-            elif "concat" in definition:
-                # For concatenation, process items in sequence
-                items = definition["concat"]
-                this_path = []
-                idx = start_index
-                
-                for item in items:
-                    if isinstance(item, str):
-                        if item == "*":
-                            # Separator marks a feature boundary
-                            # Include both features it separates
-                            this_path.append(idx)
-                            this_path.append(idx + 1)
-                            idx += 1
-                        elif item in fst_defs and item not in visited:
-                            # Process referenced variable
-                            sub_path, idx = track_features_in_path(item, [], idx, visited.copy())
-                            this_path.extend(sub_path)
-                    elif isinstance(item, dict):
-                        # Handle nested dictionaries
-                        temp_var = f"_temp_{len(fst_defs)}"
-                        fst_defs[temp_var] = item
-                        sub_path, idx = track_features_in_path(temp_var, [], idx, visited.copy())
-                        this_path.extend(sub_path)
-                        del fst_defs[temp_var]
-                
-                return this_path, idx
-        
-        return [], start_index
-    
     # First pass: count direct separators in each variable
     for var_name, definition in fst_defs.items():
         try:
@@ -269,63 +163,72 @@ def validate_fst_structure(fst_defs, keys, parse_entry, generate_entry):
             # Re-raise with variable name for better debugging
             raise ValueError(f"Error in recursive analysis of '{var_name}': {str(e)}")
     
-    # Third pass: track which features each variable corresponds to
+    # For entry points, map the entire set of keys
+    entry_points = [parse_entry, generate_entry]
+    for entry_point in entry_points:
+        if entry_point in fst_defs:
+            feature_paths[entry_point] = keys.copy()
+    
+    # For Syllable, decompose the concatenation to map features
+    # This is based on the assumption that Syllable follows a specific pattern of components and separators
+    def map_components_from_pattern(var_name):
+        """Map features to components based on their position in the concat pattern"""
+        if var_name not in fst_defs:
+            return
+            
+        definition = fst_defs[var_name]
+        if not isinstance(definition, dict) or "concat" not in definition:
+            return
+            
+        components = definition["concat"]
+        current_feature_index = 0
+        
+        for i, component in enumerate(components):
+            if isinstance(component, str):
+                if component == "*":
+                    # Skip separators
+                    continue
+                elif component in fst_defs:
+                    # This is a component variable, map it to its feature
+                    # Count how many features this component should take
+                    seps = total_separator_counts.get(component, 0)
+                    num_features = seps + 1
+                    
+                    # Map the appropriate number of features
+                    if current_feature_index < len(keys):
+                        end_index = min(current_feature_index + num_features, len(keys))
+                        feature_paths[component] = keys[current_feature_index:end_index]
+                        
+                        # Also map any nested components
+                        map_components_from_pattern(component)
+                        
+                    # Move to the next set of features
+                    current_feature_index += num_features
+    
+    # Map components for entry points
+    for entry_point in entry_points:
+        map_components_from_pattern(entry_point)
+    
+    # Special handling for variables without features mapped yet
+    # Try name-based matching for any remaining variables
     for var_name in fst_defs:
-        try:
-            indices, _ = track_features_in_path(var_name)
-            
-            # Filter out any duplicates and sort
-            indices = sorted(set(indices))
-            
-            # Map indices to actual feature names
-            if indices:
-                feature_keys = [keys[i] for i in indices if i < len(keys)]
-                if feature_keys:
-                    feature_paths[var_name] = feature_keys
-            # For variables that don't map to any indices directly, but have a relevant name
-            elif total_separator_counts.get(var_name, 0) == 0:
-                # Try to match by name
-                matching_features = []
-                for i, key in enumerate(keys):
-                    # Exact match
-                    if var_name.lower() == key.lower():
-                        matching_features = [key]
-                        break
-                    # Variable name contains feature name
-                    elif key.lower() in var_name.lower():
-                        matching_features.append(key)
-                    # Feature name contains variable name
-                    elif var_name.lower() in key.lower():
-                        matching_features.append(key)
-                
-                # Special cases based on common naming patterns
-                if not matching_features:
-                    if 'vowel' in var_name.lower():
-                        for key in keys:
-                            if '元音' in key:  # '元音' means vowel
-                                matching_features.append(key)
-                    elif 'initial' in var_name.lower() or 'consonant' in var_name.lower():
-                        for key in keys:
-                            if '声母' in key:  # '声母' means initial consonant
-                                matching_features.append(key)
-                    elif 'tone' in var_name.lower():
-                        for key in keys:
-                            if '声调' in key:  # '声调' means tone
-                                matching_features.append(key)
-                    elif 'coda' in var_name.lower() or 'final' in var_name.lower():
-                        for key in keys:
-                            if '韵尾' in key:  # '韵尾' means coda/final
-                                matching_features.append(key)
-                    elif 'round' in var_name.lower():
-                        for key in keys:
-                            if '合口' in key:  # '合口' means rounding
-                                matching_features.append(key)
-                
-                if matching_features:
-                    feature_paths[var_name] = matching_features
-        except Exception as e:
-            # Log the error but continue processing
-            logger.warning(f"Error tracking features for '{var_name}': {str(e)}")
+        if var_name not in feature_paths:
+            # Try simple name-based matching as a fallback
+            matching_features = []
+            for key in keys:
+                # Exact match
+                if var_name.lower() == key.lower():
+                    matching_features = [key]
+                    break
+                # Variable name contains feature name
+                elif key.lower() in var_name.lower():
+                    matching_features.append(key)
+                # Feature name contains variable name
+                elif var_name.lower() in key.lower():
+                    matching_features.append(key)
+                    
+            if matching_features:
+                feature_paths[var_name] = matching_features
     
     # Analyze the field mappings
     for var_name, definition in fst_defs.items():
@@ -536,58 +439,68 @@ def build_orthography_class(base_class, parser_spec):
                 lines.append(f"  {i}: {key}")
             lines.append("")
             
-            # FST variables section
-            lines.append("FST Variables:")
+            # FST Component Structure section
+            lines.append("FST Component Structure:")
             
-            # Sort by total separator count to group similar variables
-            sorted_vars = sorted(total_separator_counts.items(), key=lambda x: (-x[1], x[0]))
+            # Try to extract the components from the Syllable (or other entry point) definition
+            entry_point = entry_points['parse']['variable']
+            fst_defs = cls.parser_specification['fst']
             
-            for var_name, total_count in sorted_vars:
-                direct_count = direct_separator_counts.get(var_name, 0)
-                separator_info = f"{total_count} total separators"
-                if direct_count != total_count:
-                    separator_info += f" ({direct_count} direct, {total_count-direct_count} indirect)"
-                
-                field_str = ""
-                if var_name in feature_paths and feature_paths[var_name]:
-                    field_str = f" → Features: {', '.join(feature_paths[var_name])}"
-                elif var_name in field_mappings and field_mappings[var_name]:
-                    field_str = f" → Fields: {', '.join(field_mappings[var_name])}"
-                # For variables with 0 separators and no feature paths mapped,
-                # try to infer a single feature by index in the feature list
-                elif total_count == 0:
-                    # We should already have feature mappings from our enhanced logic
-                    # but just in case, provide a fallback
-                    if var_name in feature_paths and feature_paths[var_name]:
-                        field_str = f" → Features: {', '.join(feature_paths[var_name])}"
-                    else:
-                        # Fall back to simple name-based matching
-                        matching_features = []
-                        
-                        # Check for common linguistic terms in the variable name
-                        if 'vowel' in var_name.lower():
-                            matching_features = ["元音"]  # Vowel
-                        elif 'initial' in var_name.lower() or 'consonant' in var_name.lower():
-                            matching_features = ["声母"]  # Initial consonant
-                        elif 'tone' in var_name.lower():
-                            matching_features = ["声调"]  # Tone
-                        elif 'coda' in var_name.lower() or 'final' in var_name.lower():
-                            matching_features = ["韵尾"]  # Coda/final
-                        elif 'round' in var_name.lower():
-                            matching_features = ["合口"]  # Rounding
-                            
-                        if matching_features:
-                            field_str = f" → Features: {', '.join(matching_features)}"
-                        else:
-                            field_str = f" → Features: (maps to a single feature)"
-                
-                is_entry = ""
-                if var_name == entry_points["parse"]["variable"]:
-                    is_entry = " (PARSE ENTRY POINT)"
-                elif var_name == entry_points["generate"]["variable"]:
-                    is_entry = " (GENERATE ENTRY POINT)"
-                
-                lines.append(f"  {var_name}: {separator_info}{field_str}{is_entry}")
+            # Find the components in order of appearance
+            components_order = []
+            if entry_point in fst_defs and isinstance(fst_defs[entry_point], dict) and "concat" in fst_defs[entry_point]:
+                concat_items = fst_defs[entry_point]["concat"]
+                # Extract component names (ignoring separators)
+                for item in concat_items:
+                    if isinstance(item, str) and item != "*" and item in fst_defs:
+                        components_order.append(item)
+            
+            # Add entry point first
+            lines.append(f"  {entry_point}: → All features")
+            
+            # Display components in order from the entry point
+            for component in components_order:
+                if component in feature_paths:
+                    features_str = ", ".join(feature_paths[component])
+                    total_count = total_separator_counts.get(component, 0)
+                    direct_count = direct_separator_counts.get(component, 0)
+                    
+                    separator_info = f"{total_count} total separators"
+                    if direct_count != total_count:
+                        separator_info += f" ({direct_count} direct, {total_count-direct_count} indirect)"
+                    
+                    lines.append(f"  └─ {component}: {separator_info}")
+                    lines.append(f"     Features: {features_str}")
+            
+            # Display other variables with feature mappings
+            other_vars = [v for v in feature_paths if v != entry_point and v not in components_order]
+            if other_vars:
+                lines.append("\nOther Variables with Feature Mappings:")
+                for var_name in sorted(other_vars):
+                    features_str = ", ".join(feature_paths[var_name])
+                    total_count = total_separator_counts.get(var_name, 0)
+                    direct_count = direct_separator_counts.get(var_name, 0)
+                    
+                    separator_info = f"{total_count} total separators"
+                    if direct_count != total_count:
+                        separator_info += f" ({direct_count} direct, {total_count-direct_count} indirect)"
+                    
+                    lines.append(f"  {var_name}: {separator_info}")
+                    lines.append(f"    Features: {features_str}")
+            
+            # Handle variables without feature mappings
+            unmapped_vars = [v for v in total_separator_counts if v not in feature_paths]
+            if unmapped_vars:
+                lines.append("\nUnmapped Variables:")
+                for var_name in sorted(unmapped_vars):
+                    total_count = total_separator_counts.get(var_name, 0)
+                    direct_count = direct_separator_counts.get(var_name, 0)
+                    
+                    separator_info = f"{total_count} total separators"
+                    if direct_count != total_count:
+                        separator_info += f" ({direct_count} direct, {total_count-direct_count} indirect)"
+                    
+                    lines.append(f"  {var_name}: {separator_info}")
             
             # Warnings section
             if cls.fst_analysis.get("warnings"):
