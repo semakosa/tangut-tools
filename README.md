@@ -1,21 +1,23 @@
+# Tangut Tools: Utilities and Libraries for Tangut Studies / 西夏文研究计算机工具和库
+
+[English](#english) | [简体中文](#chinese)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Data License: Limited Public Use](https://img.shields.io/badge/Data%20License-Limited%20Public%20Use-blue.svg)](LICENSE-DATA.md)
 
-[English](#english) [简体中文](#chinese)
-
-# <a name="english"></a> Tangut Tools: Resources and Tools for Tangut Language Study
-
-This repository provides tools and resources for the study of the Tangut language, script, and text corpus.  Developed by Xun Gong (University of Vienna) and collaborators.
 
 ![Tangut Tool Screenshot](tangut-tool/screenshot.png)
 
-## Overview
+## <a name="english"></a> Overview
 
-This repository contains the following components:
+This repository offers tools and resources for studying the Tangut language, script, and text corpus. Developed by Xun Gong (University of Vienna) and collaborators, it includes:
 
-*   **TgtOrtho - Tangut Orthography Library:** A Python library based on finite state transducers (FSTs) for processing different Latin-script Tangut transcription (reconstruction) systems and their corresponding phonological representations. [Learn more](tgtortho/README.md)
+*   **TgtOrtho - Tangut Orthography Library:** A Python library using finite state transducers (FSTs) to process various Latin-script Tangut transcription systems and their phonological representations. [Learn more](tgtortho/README.md)
 *   **"Tangut Tool" GUI (Python/GTK4):** A prototype graphical user interface for dynamic transcription and glossing of Tangut text. [Learn more](tangut-tool/README.md)
-*   ~~**Proof-of-Concept Phonological Reconstruction Tool:**~~ An experimental tool for interpretable and transparent reconstruction of Tangut phonology based on the internal structure of *Sea of Characters*.~~
+
+The following components are currently being cleaned up for publishing:
+
+*   ~~**Proof-of-Concept Phonological Reconstruction Tool:**~~ An experimental tool for reconstructing Tangut phonology based on the internal structure of *Sea of Characters*.
 
 ## **Licensing**  
 
@@ -50,13 +52,10 @@ For questions, permission requests, or collaboration opportunities, please conta
   * **University of Vienna**
   * **Email:** xun.gong@univie.ac.at
 
-# <a name="chinese"></a> 西夏文研究工具
 
-本GitHub仓库提供西夏语言、文字及文本研究相关工具与资源，由龚勋（维也纳大学）及合作者开发。
+## <a name="chinese"></a> 概述
 
-## 概述
-
-本项目包含以下组件：
+本GitHub仓库提供西夏语言、文字及文本研究相关工具与资源，由龚勋（维也纳大学）及合作者开发，目前包含以下部分：
 
 - **TgtOrtho - 西夏文拟音处理库**  
   基于有限状态转换器（FST）的Python库，用于处理不同拉丁字母西夏文拟音系统及其对应的音系表示。[详细信息](tgtortho/README.md)
@@ -64,14 +63,16 @@ For questions, permission requests, or collaboration opportunities, please conta
 - **西夏文处理工具**  
   利用 Python/GTK4 开发的原型系统，支持西夏文本的自动标音与辅助标意。[详细信息](tangut-tool/README.md)
 
+以下部分正在紧急整理中，尚未发布：
+
 - ~~**音韵构拟工具**~~  
   基于《文海》的结构特征开发的透明、可解释音韵构拟工具，目前处于试验阶段。
 
 ## 授权
 
-- **代码部分**：本项目代码采用 **MIT 许可证** 开源。您可以自由使用、修改及分发，但请务必保留原始版权声明。
+- **代码部分**：本仓库所包含代码采用 **MIT 许可证** 开源。您可以自由使用、修改及分发，但请务必保留原始版权声明。
 
-- **数据部分**：本项目数据部分暂时按照 **有限公共使用许可协议** 公开，完整条款详见 [LICENSE-DATA.md](LICENSE-DATA.md) ，主要规定如下：
+- **数据部分**：本仓库所包含的数据暂时按照 **有限公共使用许可协议** 公开，完整条款详见 [LICENSE-DATA.md](LICENSE-DATA.md) ，主要规定如下：
   - **研究、教学、出版及商业应用均可免费使用**：学术研究、教学、出版及商业场景下的 **具体数据** 引用与使用。**允许内部批量处理**，但请确保处理结果不得整体性公开传播。
   - 如需进一步使用许可，请联系龚勋（xun.gong@univie.ac.at）。
 
