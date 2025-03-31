@@ -1,4 +1,4 @@
-# Tangut Tools: Utilities and Libraries for Tangut Studies / 西夏文研究计算机工具和库
+# Tangut Tools: Utilities and Libraries for Tangut Studies / 西夏文研究软件工具和函数库
 
 [English](#english) | [简体中文](#chinese)
 
@@ -10,7 +10,7 @@
 
 ## <a name="english"></a> Overview
 
-This repository offers tools and resources for studying the Tangut language, script, and text corpus. Developed by Xun Gong (University of Vienna) and collaborators, it includes:
+This repository offers standalone tools and libraries for the study of the Tangut language, script, and text corpus. Developed by Xun Gong (University of Vienna) and collaborators, it includes:
 
 *   **TgtOrtho - Tangut Orthography Library:** A Python library using finite state transducers (FSTs) to process various Latin-script Tangut transcription systems and their phonological representations. [Learn more](tgtortho/README.md)
 *   **"Tangut Tool" GUI (Python/GTK4):** A prototype graphical user interface for dynamic transcription and glossing of Tangut text. [Learn more](tangut-tool/README.md)
@@ -55,13 +55,13 @@ For questions, permission requests, or collaboration opportunities, please conta
 
 ## <a name="chinese"></a> 概述
 
-本GitHub仓库提供西夏语言、文字及文本研究相关工具与资源，由龚勋（维也纳大学）及合作者开发，目前包含以下部分：
+本GitHub仓库提供西夏语言、文字及文本研究相关的软件工具和函数库，由龚勋（维也纳大学）及合作者开发，目前包含以下部分：
 
-- **TgtOrtho - 西夏文拟音处理库**  
-  基于有限状态转换器（FST）的Python库，用于处理不同拉丁字母西夏文拟音系统及其对应的音系表示。[详细信息](tgtortho/README.md)
+- **TgtOrtho - 西夏文拟音处理库**
+基于有限状态转换器（FST）的Python库，用于西夏文拟音不同拉丁转写系统与音系表示之间的互转。 [详见](tgtortho/README.md)
 
-- **西夏文处理工具**  
-  利用 Python/GTK4 开发的原型系统，支持西夏文本的自动标音与辅助标意。[详细信息](tangut-tool/README.md)
+- **“Tangut Tool” — 西夏文本标注工具**  
+  利用 Python/GTK4 开发的原型系统，支持图形界面中的西夏文本的自动标音与语义标注。[详见](tangut-tool/README.md)
 
 以下部分正在紧急整理中，尚未发布：
 
@@ -70,22 +70,22 @@ For questions, permission requests, or collaboration opportunities, please conta
 
 ## 授权
 
-- **代码部分**：本仓库所包含代码采用 **MIT 许可证** 开源。您可以自由使用、修改及分发，但请务必保留原始版权声明。
+- **代码部分**：本仓库所包含代码采用 **MIT 许可证** 开源。您可以可自由调用、二次开发、集成至其他项目等，但需保留版权声明。
 
-- **数据部分**：本仓库所包含的数据暂时按照 **有限公共使用许可协议** 公开，完整条款详见 [LICENSE-DATA.md](LICENSE-DATA.md) ，主要规定如下：
+- **数据部分**：本仓库所包含的数据现阶段暂时按照 **受限公共使用许可协议** 公开，完整条款详见 [LICENSE-DATA.md](LICENSE-DATA.md) ，主要规定如下：
   - **研究、教学、出版及商业应用均可免费使用**：学术研究、教学、出版及商业场景下的 **具体数据** 引用与使用。**允许内部批量处理**，但请确保处理结果不得整体性公开传播。
   - 如需进一步使用许可，请联系龚勋（xun.gong@univie.ac.at）。
 
-## 参与
+## 协作流程
 
 欢迎广大爱好者朋友与学界同仁通过以下方式参与项目共建：
 - **问题反馈**：如发现任何问题，请在 GitHub 上提交 issue。
 - **功能建议**：如有新功能讨论，欢迎提出 issue。
-- **代码贡献**：
+- **功能开发**：
   1. Fork 本项目；  
   2. 创建新分支进行开发（例如：`git checkout -b feature/new-functionality`）；  
-  3. 编写清晰明了的commit说明；  
-  4. 发起pull request，说明您的修改内容。
+  3. 编写清晰明了的 commit 说明；  
+  4. 发起 pull request，说明您的修改内容。
 - **数据校订**：如发现数据错误或其他问题，欢迎提交 issue 或直接通过 pull request 提交修正方案。
 
 ## 联系方式
