@@ -60,7 +60,7 @@ ghc_orthography = {
             ]
         },
         "Tenseness": {
-            "union": [":-", ".:+"]
+            "union": [":-", "·:+"]
         },
         "Length": {
             "union": [":-", "_:+"]
@@ -86,8 +86,8 @@ ghc_orthography = {
     },
     'substitutions': [
         ('j_', '_j'),
-        ('j.', '.j'),
-        ('w.', '.w'),
+        ('j·', '·j'),
+        ('w·', '·w'),
         ('w_', '_w'),
         ("N", "~"),
         ("~", "̃"),
@@ -104,6 +104,7 @@ ghc_orthography = {
         ('o_', 'oo'),
         ('ə_', 'əə'),
         ('ɨ_', 'ɨɨ'),
+        ('·', "."), # Foma does not support dot as a non-wildcard
         ('.', "̣"),
         ('1', "¹"),
         ('2', "²")],

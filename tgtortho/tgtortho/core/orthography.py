@@ -730,20 +730,23 @@ def build_orthography_class(base_class, parser_spec):
                 logger.debug("Initial parse failed, trying with substitutions")
 
         # Try with substitutions if initial parse failed
+        modified = s
         for easy, hard in reversed(substitutions):
             if result:
                 break
-            if debug:
-                logger.debug(f"Applying substitution: '{hard}' -> '{easy}'")
                 
             if 'substitutions_parse' in parser_spec:
-                modified = re.sub(hard, easy, s)
+                if debug:
+                    logger.debug(f"re.sub: {hard} -> {easy}, {modified}")
+                modified = re.sub(hard, easy, modified)
             else:
-                modified = s.replace(hard, easy)
+                if debug:
+                    logger.debug(f"'{modified}'.replace: {hard} -> {easy}")
+                modified = modified.replace(hard, easy)
                 
             if debug and modified != s:
                 logger.debug(f"Modified input: '{s}' -> '{modified}'")
-                
+            
             result = fst_down(syllable_fst[parser_spec['parse']], modified)
             if debug:
                 if result:

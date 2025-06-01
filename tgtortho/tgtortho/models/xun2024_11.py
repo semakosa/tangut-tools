@@ -21,7 +21,7 @@ gx202411_specification = {
             'ts', 'tsh', 'dz', 's', 
             'tś', 'tśh', 'dź', 'ś',
             'k', 'kh', 'g', 'ŋ',       
-            'h', 'γ', 'y', 'ʔ',
+            'h', 'γ', 'y', 'ʔ', 'w', # 202411: w
             'r', 'l', 'll', 'lh', 'z', 'ź'], # 202411: ll
         '合口': ['-', '+'],
         '元音': ['a', 'i', 'u', 'e', 'o', 'ə', 'uo', 'ya', 'iə', 'io'], # 202411: ya, iə, io
@@ -42,48 +42,62 @@ gx202411_orthography = {
         },
         "InvariantInitial": {
             "union": ["p", "t", "ts",
-                      "ph", "th", "tsh",
-                      "b", "d", "dz",
-                      "m", "n",
-                      "ṇ",
-                      "s",
-                      "h", "γ",
-                      "z", "r", "l", "lh", "ll",
-                      ':ʔ', "v"]
+                        "ph", "th", "tsh",
+                        "b", "d", "dz",
+                        "m", "n",
+                        "ṇ",
+                        "s",
+                        "h",
+                        "z", "r", "l", "lh", "ll",
+                        ':ʔ', "v"]
         },
         "InvariantInitialWithNasal": {
             "union": ["mp:p", "nt:t", "nts:ts",
-                      "mph:ph", "nth:th", "ntsh:tsh",
-                      "mb:b", "nd:d", "ndz:dz",
-                      "mm:m", "nn:n",
-                      "ns:s",
-                      "nh:h", "nγ:γ",
-                      "nz:z",
-                      "nr:r", "nlh:lh", "nll:ll", # nl -> nll
-                      "nv:v"]
+                        "mph:ph", "nth:th", "ntsh:tsh",
+                        "mb:b", "nd:d", "ndz:dz",
+                        "mm:m", "nn:n",
+                        "ns:s",
+                        "nh:h",
+                        "nz:z",
+                        "nr:r", "nlh:lh", "nll:ll", # nl -> nll
+                        "nv:v"]
         },
         "UvularInitial": {
             "union": ["InvariantInitial",
-                    "q:k", "qh:kh", "ġ:g", "ŋ:ŋ",
-                    "tṣ:tś", "tṣh:tśh", "dẓ:dź", "ṣ:ś", "ẓ:ź",
-                    ]
+                      "q:k", "qh:kh", "ġ:g", "ŋ:ŋ",
+                      "ġh:γ", 'w',
+                      "tṣ:tś", "tṣh:tśh", "dẓ:dź", "ṣ:ś", "ẓ:ź",
+                      ]
         },
         "UvularInitialWithNasal": {
             "union": ["InvariantInitialWithNasal",
-                    "ŋq:k", "ŋqh:kh", "ŋġ:g", "ŋŋ:ŋ",
-                    "ntṣ:tś", "ntṣh:tśh", "ndẓ:dź", "nṣ:ś", "nẓ:ź"]
+                      "ŋq:k", "ŋqh:kh", "ŋġ:g", "ŋŋ:ŋ",
+                      "ŋġh:γ",
+                      "ntṣ:tś", "ntṣh:tśh", "ndẓ:dź", "nṣ:ś", "nẓ:ź"]
         },
         "VelarInitial": {
             "union": ["InvariantInitial",
-                    "k", "kh", "g", "ŋ",
-                    "tś", "tśh", "dź", "ś", "ź",
-                    "y", "f"]
+                      "k", "kh", "g", "ŋ",
+                      "gh:γ",
+                      "tś", "tśh", "dź", "ś", "ź",
+                      "y", "f"]
         },
         "VelarInitialWithNasal": {
             "union": ["InvariantInitialWithNasal",
-                    "ŋk:k", "ŋkh:kh", "ŋg:g", "ŋŋ:ŋ",
-                    "ntś:tś", "ntśh:tśh", "ndź:dź", "nś:ś", "nź:ź",
-                    "ny:y"]
+                      "ŋk:k", "ŋkh:kh", "ŋg:g", "ŋŋ:ŋ",
+                      "ŋgh:γ",
+                      "ntś:tś", "ntśh:tśh", "ndź:dź", "nś:ś", "nź:ź",
+                      "ny:y"]
+        },
+        "InitialCompatibleWithYod": {
+            "union": ["p", "t", "ts",
+                        "ph", "th", "tsh",
+                        "b", "d", "dz",
+                        "m", "n",
+                        "k", "kh", "g", "ŋ",
+                        "tś", "tśh", "dź", "ś", "ź",
+                        "h"
+                        ]
         },
         "PreinitialUvularInitial": {
             "union": [
@@ -100,13 +114,14 @@ gx202411_orthography = {
             "union": ["i", "e", "ə", "u", "a", "o"]
         },
         "VelarVowel": {
-            "union": ["i", "e", "ə", "u", "a", "o", "uo", "ya", "iə", "io"]
+            "union": ["i", "e", "ə", "u", "a", "o", "uo"]
         },
         "InitialGradeAndVowel": {
             "union": [
                 {"concat": ["PreinitialUvularInitial", "*", "Rounding", "*", ":1", "*", "Vowel", "_:"]},
                 {"concat": ["PreinitialUvularInitial", "*", "Rounding", "*", "a:2", "*", "Vowel", "_:"]},
-                {"concat": ["PreinitialVelarInitial", "*", "Rounding", "*", ":3", "*", "VelarVowel"]}
+                {"concat": ["PreinitialVelarInitial", "*", "Rounding", "*", ":3", "*", "VelarVowel"]},
+                {"concat": [':-', '*', 'InitialCompatibleWithYod', '*', 'Rounding', '*', ':3', '*', 'ya']}
             ]
         },
         "Tenseness": {
@@ -130,7 +145,7 @@ gx202411_orthography = {
         ('R', 'r'),
         ('_', "̱"),
         ('_', '̠'),
-        ("N", "ṁ"),
+        ("N", "ṃ"),
         ('1', "¹"),
         ('2', "²"),
     ],
@@ -139,6 +154,7 @@ gx202411_orthography = {
         ('R', '^r'),
         ('_', "̱"),
         ('_', '̠'),
+        ("N", "ṃ"),
         ("N", "ṁ"),
         ('1', "¹"),
         ('2', "²"),

@@ -83,7 +83,7 @@ gx202404_orthography = {
             "union": ["InvariantInitialWithNasal",
                     "ŋk:k", "ŋkh:kh", "ŋg:g", "ŋŋ:ŋ",
                     "ntś:tś", "ntśh:tśh", "ndź:dź", "nś:ś", "nź:ź",
-                    "ny:y"]
+                    "n·y:y"]
         },
         "PreinitialUvularInitial": {
             "union": [
