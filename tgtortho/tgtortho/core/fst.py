@@ -2,11 +2,11 @@
 Finite State Transducer utilities.
 
 This module provides utilities for working with Finite State Transducers (FSTs)
-using the pynini library.
+using the pyfoma library.
 """
 
-import pynini
-
+from pyfoma.fst import FST
+from functools import reduce
 
 def translate_minilanguage(minilang):
     """
@@ -19,7 +19,13 @@ def translate_minilanguage(minilang):
         dict: A dictionary mapping variable names to compiled FSTs.
     """
     translations = {key: None for key in minilang}
-    SEP = pynini.cross("", "*")
+    SEP = FST(label=('',)) ** FST(label=('*',))  # Cross from empty string to one single asterisk
+
+    def translate_string(s):
+        if s == '':
+            return FST(label=('',))
+        fsts = [FST(label=(c,)) for c in s]
+        return reduce(lambda x, y: x.concatenate(y), fsts)
     
     def translate(item):
         if isinstance(item, str):
@@ -31,24 +37,27 @@ def translate_minilanguage(minilang):
                 return SEP
             elif ':' in item:
                 a, b = item.split(':', 1)
-                return pynini.cross(a, b)
+                return translate_string(a) ** translate_string(b)
             else:
-                return item
+                return translate_string(item)
         elif isinstance(item, dict):
             if 'union' in item:
                 items = [translate(i) for i in item['union']]
-                return pynini.union(*items)
+                result = items[0].__copy__()
+                for i in items[1:]:
+                    result = result | i
+                return result
             elif 'concat' in item:
                 items = [translate(i) for i in item['concat']]
-                result = items[0]
+                result = items[0].__copy__()
                 for i in items[1:]:
-                    result = pynini.concat(result, i)
+                    result = result * i
                 return result
         raise ValueError(f'Unknown item type: {item}')
 
     def translate_var(var_name):
         translation = translate(minilang[var_name])
-        translations[var_name] = translation.optimize()
+        translations[var_name] = translation.minimize()
 
     for var_name in minilang:
         translate_var(var_name)
@@ -60,13 +69,14 @@ def fst_down(fst, s):
     Apply an FST to a string in the downward direction.
     
     Args:
-        fst (pynini.Fst): The FST to apply.
+        fst (FST): The FST to apply.
         s (str): The string to apply the FST to.
         
     Returns:
         list: A list of output strings.
     """
-    return list(pynini.compose(s, fst).paths().ostrings())
+    results = list(fst.apply(s, inverse=False))
+    return results
 
 
 def fst_up(fst, s):
@@ -74,10 +84,11 @@ def fst_up(fst, s):
     Apply an FST to a string in the upward direction.
     
     Args:
-        fst (pynini.Fst): The FST to apply.
+        fst (FST): The FST to apply.
         s (str): The string to apply the FST to.
         
     Returns:
         list: A list of output strings.
     """
-    return list(pynini.compose(s, pynini.invert(fst)).paths().ostrings()) 
+    results = list(fst.apply(s, inverse=True))
+    return results 

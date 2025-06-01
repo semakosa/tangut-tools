@@ -20,7 +20,7 @@ setup(
     ],
     python_requires=">=3.6",
     install_requires=[
-        "pynini>=2.1.3",
+        "pyfoma>=1.0.0",
     ],
     extras_require={
         "full": [

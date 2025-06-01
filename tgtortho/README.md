@@ -16,7 +16,7 @@ A comprehensive Python library for processing Tangut orthography and phonologica
 TgtOrtho has the following dependencies:
 
 - **Python:** 3.6 or higher
-- **Pynini:** 2.1.3 or higher - A Python library for finite state transducers, used for parsing and generation of orthographic forms
+- **Pyfoma:** 1.0.0 or higher - A Python library for finite state transducers, used for parsing and generation of orthographic forms
 - **PyICU:** (optional) - For enhanced Unicode handling in complex scripts
 - **NumPy:** (optional) - For numerical processing of phonological vectors in advanced use cases
 
